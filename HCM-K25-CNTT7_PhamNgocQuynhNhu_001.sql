@@ -214,8 +214,23 @@ delimiter //
 create procedure sp_check_payload_status (order_id int)
 begin
 
+declare error_mess varchar(20);
+
+select sh.actual_weight, vd.max_payload from shipments sh
+join delivery_orders delorders on sh.shipment_id = delorders.shipment_id
+join vehicle_details vd on delorders.vehicle_id = vd.vehicle_id;
+
+if (sh.actual_weight < vd.max_payload) then
+		signal sqlstate '45000'; set message_text = 'Safe';
+    elseif (sh.actual_weight = vd.max_payload) then
+		signal sqlstate '45000'; set message_text = 'Fully Loaded';
+    else 
+		signal sqlstate '45000'; set message_text = 'Overloaded';
+end if;
 end //
 delimiter ;
+
+call sp_check_payload_status (1);
 
 -- 6.2
 drop procedure if exists sp_reassign_driver;
