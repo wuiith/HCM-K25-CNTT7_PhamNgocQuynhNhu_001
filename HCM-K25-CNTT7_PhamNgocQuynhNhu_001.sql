@@ -194,26 +194,41 @@ create trigger trg_update_driver_rating
 after update on delivery_orders
 for each row
 begin
-		update shippers
-		set rating = rating + 0.1
-		where new.order_status = 'Finished';
+		update shippers s
+        join delivery_orders deoreders on s.driver_id = deoreders.driver_id
+		set s.rating = s.rating + 0.1
+		where deoreders.order_status = 'Finished';
 end //
 delimiter ;
 
 -- test trigger trg_update_driver_rating
 update delivery_orders
 set order_status = 'Finished'
-where order_id = 9003;
+where order_id = 9001;
 
 -- PHẦN 6
+
+-- 6.1
+drop procedure if exists sp_check_payload_status;
 delimiter //
 create procedure sp_check_payload_status (order_id int)
 begin
 
+end //
+delimiter ;
 
+-- 6.2
+drop procedure if exists sp_reassign_driver;
+delimiter //
+create procedure sp_reassign_driver ()
+begin
+	start transaction;
+    
 
 end //
 delimiter ;
+
+
 
 
 
